@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatRooms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff; /* Светло-голубой фон */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #1e90ff; /* Ярко-синий цвет */
+            margin-bottom: 20px;
+        }
+        p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #1e90ff;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #4682b4; /* Более тёмный синий при наведении */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Добро пожаловать в ChatRooms!</h1>
+        <p>Пожалуйста, войдите в систему или зарегистрируйтесь для продолжения.</p>
+        <button onclick="window.location.href='/login/'" class="button">Вход</button>
+        <button onclick="window.location.href='/reg/'" class="button">Регистрация</button>
+    </div>
+</body>
+</html>

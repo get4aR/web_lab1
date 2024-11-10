@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #1e90ff; /* Ярко-синий цвет */
+        }
+        input {
+            width: calc(100% - 22px); /* Уменьшаем ширину для учета отступов */
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box; /* Учитываем padding в ширине */
+        }
+        .button {
+            padding: 10px;
+            background-color: #1e90ff;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            width: calc(100% - 22px);
+        }
+        .button:hover {
+            background-color: #4682b4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Авторизация</h1>
+        <form method="post" action="/login/">
+            <input type="email" name="email" placeholder="email" required>
+            <input type="password" name="password" placeholder="password" required>
+            <button class="button">Войти</button>
+        </form>
+    </div>
+</body>
+</html>

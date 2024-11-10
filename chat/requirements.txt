@@ -1,0 +1,6 @@
+fastapi
+fastapi[standard]
+uvicorn
+uvicorn[standard]
+typing
+python-jose

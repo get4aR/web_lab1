@@ -1,0 +1,12 @@
+fastapi
+fastapi[standard]
+uvicorn
+uvicorn[standard]
+pydantic
+sqlalchemy
+python-jose
+passlib
+bcrypt==4.0.1
+psycopg2-binary
+datetime
+jinja2
