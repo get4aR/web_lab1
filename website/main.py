@@ -43,15 +43,19 @@ def register(response: Response, nickname: str = Form(...), email: str = Form(..
     # Generate JWT token -- РАЗОБРАТЬСЯ!!!
     access_token = create_access_token(data={"sub": new_user.email})
 
-    response = RedirectResponse(url=f"/chatrooms/{new_user.id}", status_code=302)
-    response.set_cookie(key=f"Authorization_{new_user.id}", value=f"Bearer {access_token}", httponly=True)
+    response = RedirectResponse(url=f"/chatrooms/", status_code=302)
+    response.set_cookie(key=f"Authorization", value=f"Bearer {access_token}", httponly=True)
 
     return response
 
 # Форма авторизации
 @app.get("/login/", response_class=HTMLResponse)
 def login_form(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    if request.cookies.get(f"Authorization"):
+        response = RedirectResponse(url=f"/chatrooms/", status_code=302)
+    else:
+        return templates.TemplateResponse("login.html", {"request": request})
+    return response
 
 # Авторизация
 @app.post("/login/")
@@ -68,22 +72,26 @@ def login(response: Response, email: str = Form(...), password: str = Form(...),
     # Generate JWT token for authentication
     access_token = create_access_token(data={"sub": user.email})
 
-    response = RedirectResponse(url=f"/chatrooms/{user.id}", status_code=302)
-    response.set_cookie(key=f"Authorization_{user.id}", value=f"Bearer {access_token}", httponly=True)
+    response = RedirectResponse(url=f"/chatrooms/", status_code=302)
+    response.set_cookie(key=f"Authorization", value=f"Bearer {access_token}", httponly=True)
 
     return response
 
 # Выход
-@app.post("/logout/{user_id}/")
-def logout(user_id: int, response: Response):
+@app.post("/logout/")
+def logout(response: Response):
     response = RedirectResponse(url="/", status_code=302)
-    response.delete_cookie(key=f"Authorization_{user_id}")
+    response.delete_cookie(key=f"Authorization")
     return response
 
 # Форма чат-комнат
-@app.get("/chatrooms/{user_id}/", response_class=HTMLResponse)
-def get_chatrooms(user_id: int, request: Request, response: Response, db: Session = Depends(get_db)):
-    user = get_current_user(user_id, request, db)
+@app.get("/chatrooms/", response_class=HTMLResponse)
+def get_chatrooms(request: Request, response: Response, db: Session = Depends(get_db)):
+    if not request.cookies.get(f"Authorization"):
+        response = RedirectResponse(url=f"/", status_code=302)
+        return response
+    
+    user = get_current_user(request, db)
 
     # Если user -- это RedirectResponse, возвращаем его
     if isinstance(user, RedirectResponse):
@@ -98,9 +106,9 @@ def get_chatrooms(user_id: int, request: Request, response: Response, db: Sessio
     })
 
 # Создание чат-комнат
-@app.post("/chatrooms/{user_id}/create/")
+@app.post("/chatrooms/create/")
 def create_chatroom(request: Request, create_name: str = Form(...), db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    db_chatroom = db.query(ChatRoom).filter(ChatRoom.name == create_name, ChatRoom.owner_id == user.id).first()
+    db_chatroom = db.query(ChatRoom).filter(ChatRoom.name == create_name).first()
     if db_chatroom:
         raise HTTPException(status_code=400, detail=f"Chatroom with name {create_name} already exists")
     
@@ -118,16 +126,15 @@ def create_chatroom(request: Request, create_name: str = Form(...), db: Session 
     })
 
 # Поиск чат-комнат
-@app.get("/chatrooms/{user_id}/search/", response_class=HTMLResponse)
-def search_chatrooms(request: Request, user_id: int, search_name: str, db: Session = Depends(get_db)):
-    user = get_current_user(user_id, request, db)
+@app.get("/chatrooms/search/", response_class=HTMLResponse)
+def search_chatrooms(request: Request, search_name: str, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
 
     # Если user - это RedirectResponse, возвращаем его
     if isinstance(user, RedirectResponse):
         return user  # Перенаправляем на страницу логина
     
     chatrooms = db.query(ChatRoom).filter(ChatRoom.name.ilike(f"%{search_name}%")).order_by(ChatRoom.name).all()
-    user = db.query(User).filter(User.id == user_id).first()
     
     # Получение всех комнат пользователя
     user_chatrooms = db.query(ChatRoom).filter(ChatRoom.owner_id == user.id).all()
@@ -141,7 +148,7 @@ def search_chatrooms(request: Request, user_id: int, search_name: str, db: Sessi
     })
 
 # Удаление чат-комнат
-@app.post("/chatrooms/{user_id}/delete/{room_id}/")
+@app.post("/chatrooms/delete/{room_id}/")
 def delete_chatrooms(request: Request, room_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     db_chatroom = db.query(ChatRoom).filter(ChatRoom.id == room_id).first()
     if db_chatroom is None:
@@ -162,7 +169,7 @@ def delete_chatrooms(request: Request, room_id: int, db: Session = Depends(get_d
     })
 
 # Создание токена для пользователя и комнаты
-@app.post("/chatroom_token/{user_id}/", response_model=Token)
+@app.post("/chatroom_token/", response_model=Token)
 async def get_chat_token(request: RoomRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     db_chatroom = db.query(ChatRoom).filter(ChatRoom.name == request.room_name).first()
     if db_chatroom is None:
@@ -173,6 +180,6 @@ async def get_chat_token(request: RoomRequest, user: User = Depends(get_current_
     return {"access_token": token, "token_type": "bearer"}
     # return redirect to chatroom
 
-@app.get("/chatroom/{user_id}/", response_class=HTMLResponse)
-def chatroom(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@app.get("/chatroom/", response_class=HTMLResponse)
+def chatroom(request: Request): # , db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
     return templates.TemplateResponse("chatroom.html", {"request": request})

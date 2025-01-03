@@ -54,11 +54,12 @@
 <body>
     <div class="container">
         <h1>Авторизация</h1>
-        <form method="post" action="/login/">
-            <input type="email" name="email" placeholder="email" required>
-            <input type="password" name="password" placeholder="password" required>
-            <button class="button">Войти</button>
+        <form id="loginForm" method="post" action="/login/">
+            <input id="email" type="email" name="email" placeholder="email" required>
+            <input id="password" type="password" name="password" placeholder="password" required>
+            <button class="button" type="submit">Войти</button>
         </form>
     </div>
+    </script>
 </body>
 </html>

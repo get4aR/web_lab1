@@ -43,6 +43,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-decoration: none;
         }
         .button:hover {
             background-color: #4682b4; /* Более тёмный синий при наведении */
@@ -53,8 +54,8 @@
     <div class="container">
         <h1>Добро пожаловать в ChatRooms!</h1>
         <p>Пожалуйста, войдите в систему или зарегистрируйтесь для продолжения.</p>
-        <button onclick="window.location.href='/login/'" class="button">Вход</button>
-        <button onclick="window.location.href='/reg/'" class="button">Регистрация</button>
+        <a href="/login/" class="button">Вход</a>
+        <a href="/reg/" class="button">Регистрация</a>
     </div>
 </body>
 </html>

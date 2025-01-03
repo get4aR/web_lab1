@@ -102,12 +102,26 @@
             border: none;
             margin: 20px;
         }
+        .chatroom-button {
+            background: none;
+            border: none;
+            color: #1e90ff; 
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+            font-weight: bold;
+        }
+        .chatroom-button:hover {
+            color: #4682b4; /* Темнее голубой при наведении */
+            text-decoration: none; 
+        }
     </style>
     <script>
         async function CreateTokenThenRedirect(RoomName) {
             try {
                 // Параметры запроса к API
-                const response = await fetch('/chatroom_token/{{ user.id }}/', {
+                const response = await fetch('/chatroom_token/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -126,7 +140,7 @@
                 localStorage.setItem("token", token);
 
                 // Перенаправление на страницу чата с токеном в заголовке
-                window.location.href = "/chatroom/{{ user.id }}/";
+                window.location.href = "/chatroom/";
                 
             } catch (error) {
                 console.error('Error with getting da token:', error);
@@ -138,23 +152,23 @@
 <body>
     <div class="container">
         <h1>Привет, {{ user.nickname }}!</h1>
-        <form action="/logout/{{ user.id }}/" method="post">
-            <button class="button-logout" type="submit">Выйти</button>
+        <form action="/logout/" method="post">
+            <button name="logout_btn" class="button-logout" type="submit">Выйти</button>
         </form>
 
         <hr class="styled-divider">
 
         <section>
             <h2>Создать новую комнату</h2>
-            <form action="/chatrooms/{{ user.id }}/create/" method="post">
+            <form action="/chatrooms/create/" method="post">
                 <input type="text" id="create_name" name="create_name" placeholder="Название комнаты" required minlength="6">
-                <button class="button" type="submit">Создать</button>
+                <button name="create_room_btn" class="button" type="submit">Создать</button>
             </form>
         </section>
 
         <section>
             <h2>Поиск комнат</h2>
-            <form action="/chatrooms/{{ user.id }}/search/" method="get">
+            <form action="/chatrooms/search/" method="get">
                 <input type="text" id="search_name" name="search_name" placeholder="Поиск по названию" required minlength="6">
                 <button class="button" type="submit">Поиск</button>
             </form>
@@ -164,9 +178,15 @@
                     {% if chatrooms %}
                     <ul>
                         <h3>Найденные комнаты по запросу "{{ search_name }}"</h3>
-                        
                             {% for chatroom in chatrooms %}
-                                <li><a href="javascript:void(0);" onclick="CreateTokenThenRedirect('{{ chatroom.name }}')">{{ chatroom.name }}</a></li>
+                                <li>
+                                    <button 
+                                        name="chatroom_button_search" 
+                                        class="chatroom-button" 
+                                        onclick="CreateTokenThenRedirect('{{ chatroom.name }}')">
+                                        {{ chatroom.name }}
+                                    </button>
+                                </li>
                             {% endfor %}
                     </ul>
                     {% else %}
@@ -180,10 +200,15 @@
             <ul>
                 {% for chatroom in user_chatrooms %}
                     <li>
-                        <a href="javascript:void(0);" onclick="CreateTokenThenRedirect('{{ chatroom.name }}')">{{ chatroom.name }}</a>
-                        <form action="/chatrooms/{{ user.id }}/delete/{{ chatroom.id }}/" method="post" style="display:inline">
+                        <button
+                            name="chatroom_button_search" 
+                            class="chatroom-button" 
+                            onclick="CreateTokenThenRedirect('{{ chatroom.name }}')">
+                            {{ chatroom.name }}
+                        </button>
+                        <form action="/chatrooms/delete/{{ chatroom.id }}/" method="post" style="display:inline">
                             <input type="hidden" name="id" value="{{ chatroom.id }}">
-                            <button class="button-delete-room" type="submit">Удалить</button>
+                            <button name="delete_room_btn" class="button-delete-room" type="submit">Удалить</button>
                         </form>
                     </li>
                 {% endfor %}

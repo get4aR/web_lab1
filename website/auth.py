@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status, Request, Header
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import User, get_db
@@ -12,7 +12,7 @@ from passlib.context import CryptContext
 # Secret key for JWT encryption
 SECRET_KEY = "secretkey"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 0.25
 
 # Hashing algorithm for passwords
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # bcrypt==4.0.1
@@ -45,8 +45,8 @@ def create_chat_token(nickname: str, email: str, room_name: str):
     return create_access_token(data=token_data)
 
 # Function to verify and decode JWT token
-def get_current_user(user_id: int, request: Request, db: Session = Depends(get_db)) -> User:
-    token = request.cookies.get(f"Authorization_{user_id}")
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    token = request.cookies.get(f"Authorization")
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -72,10 +72,10 @@ def get_current_user(user_id: int, request: Request, db: Session = Depends(get_d
             raise credentials_exception
 
         # Проверяем, истек ли токен
-        if datetime.utcfromtimestamp(payload["exp"]) < datetime.now():
+        if datetime.fromtimestamp(payload["exp"]) < datetime.now():
             # Удаляем куку
-            response = RedirectResponse(url="/login")
-            response.delete_cookie(f"Authorization_{user_id}")
+            response = RedirectResponse(url="/login/")
+            response.delete_cookie(f"Authorization")
             return response
 
     except JWTError:
